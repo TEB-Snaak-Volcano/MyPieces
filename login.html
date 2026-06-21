@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>真的是你</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main>
+        <div class="card">
+            你来了
+            <div id="loginArea">
+                <h2 class="title" id="greeting">是你，<strong id="userDisplay"></strong></h2>
+                <div id="visitorHint" style="display: none; margin-bottom: 20px; font-size: 22px;">
+                🎉 🎉 🎉
+                </div>
+                <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
+                    <input type="password" id="passwordInput" placeholder="输入密码..."
+                           style="padding: 12px 20px; border-radius: 30px; border: 1px solid #ddd; font-size: 16px; width: 250px;">
+                    <button id="loginBtn" class="button_login">
+                        进入
+                    </button>
+                </div>
+                <p id="loginError" style="color: red; margin-top: 10px; height: 20px;"></p>
+                <p style="margin-top: 10px; color: #aaa; font-size: 14px;">
+                    （你应该知道密码的吧）
+                </p>
+            </div>
+
+            <div id="galleryArea" style="display: none; margin-top: 20px;">
+                <h2 class="title" style="font-size: 32px;">📸 图册</h2>
+                <div id="imageGrid" style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; margin-top: 20px;">
+                    <!-- 由 JS 动态生成 -->
+                </div>
+                <button id="logoutBtn" class="button_logout">
+                    什么？你想重新来过？
+                </button>
+                <button id="endBtn" class="button_end">
+                    我要离开
+                </button>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p>©TEB_Snaak_Volcano</p>
+    </footer>
+    <!-- 灯箱容器 -->
+    <div class="lightbox-overlay" id="lightboxOverlay">
+        <span class="lightbox-close" id="lightboxClose">&times;</span>
+        <img id="lightboxImage" src="" alt="放大查看">
+    </div>
+    <script>
+        // 直接从现有的 script.js 中引用 photoData（确保 script.js 先加载）
+        // 但因为我们还没加载 script.js，这里我们直接使用全局变量，需在之后加载
+    </script>
+    <!-- 加载现有的 script.js（里面包含 photoData） -->
+    <script src="script.js"></script>
+    <!-- 然后再执行 login 逻辑 -->
+    <script>
+        // 获取 URL 参数中的 user
+        const urlParams = new URLSearchParams(window.location.search);
+        const userName = urlParams.get('user') || 'visitor';
+
+        // 显示用户名
+        document.getElementById('userDisplay').textContent = userName;
+        // 根据用户名获取对应的密码（从 passwordMap 中查找）
+        const correctPassword = passwordMap[userName];
+        const isVisitor = (userName === 'visitor');
+
+        if (isVisitor) {
+    // 1. 隐藏密码输入框
+            document.getElementById('passwordInput').style.display = 'none';
+    
+    // 2. 显示访客专属提示
+            document.getElementById('visitorHint').style.display = 'block';
+    
+    // 3. 修改按钮文字（把“进入”改成“进入图册”）
+            document.getElementById('loginBtn').textContent = '进入图册';
+    
+    // 4. 修改提示文字（把“你应该知道密码的吧”改成欢迎语）
+            document.querySelector('#loginArea p:last-child').textContent = '虽然很抱歉你没有特别内容，但依然欢迎你的参观';
+            document.querySelector('#loginArea p:last-child').style.color = '#aaa';
+    
+    // 5. 设置默认密码为空（或任意值），使得点击“进入图册”直接通过验证
+    // 我们将在点击事件中单独处理 visitor
+}
+        const loginArea = document.getElementById('loginArea');
+        const galleryArea = document.getElementById('galleryArea');
+        const imageGrid = document.getElementById('imageGrid');
+        const passwordInput = document.getElementById('passwordInput');
+        const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const loginError = document.getElementById('loginError');
+
+        // 登录按钮点击
+        loginBtn.addEventListener('click', function() {
+            const inputPwd = passwordInput.value.trim();
+            loginError.textContent = '';
+            if (userName === 'visitor') {
+        // 访客直接登录，无需验证密码
+                doLogin();
+                return;
+            }
+            if (inputPwd===correctPassword){
+                doLogin()
+            }else {
+                loginError.textContent = '❌ 这好像不是你';
+                passwordInput.value = '';
+                passwordInput.focus();
+            }
+            function doLogin(){
+                const filtered = photoData.filter(photo => {
+                    // 如果图片标签包含 'all'，则对所有用户可见
+                    if (photo.tags.includes('all')) return true;
+                    // 否则检查是否包含当前用户名
+                    return photo.tags.includes(userName);
+                });
+
+                // 清空并渲染图片
+                imageGrid.innerHTML = '';
+                filtered.forEach(photo => {
+                    const img = document.createElement('img');
+                    img.src = photo.src;
+                    img.alt = photo.tags.join(',');
+                    img.style.width = '150px';
+                    img.style.height = '150px';
+                    img.style.objectFit = 'cover';
+                    img.style.borderRadius = '12px';
+                    img.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+                    img.style.cursor = 'pointer';          // 鼠标变手型，提示可点击
+                    img.style.transition = 'transform 0.2s';
+    
+                    // 悬停轻微放大效果（可选）
+                    img.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.05)';
+                    });
+                    img.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                    });
+    
+    // 👇 核心：点击图片打开灯箱
+                    img.addEventListener('click', function() {
+                    openLightbox(this.src);
+                    });
+    
+                    imageGrid.appendChild(img);
+                });
+
+                // 切换显示
+                loginArea.style.display = 'none';
+                galleryArea.style.display = 'block';
+                passwordInput.value = '';
+            } 
+        });
+
+        // 回车登录
+        passwordInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                loginBtn.click();
+            }
+        });
+
+        // 退出按钮：回到 name.html
+        logoutBtn.addEventListener('click', function() {
+            window.location.href = 'name.html';
+        });
+        endBtn.addEventListener('click', function() {
+            window.location.href = 'end.html';
+        });
+        // ========== 灯箱控制 ==========
+        const overlay = document.getElementById('lightboxOverlay');
+        const lightboxImg = document.getElementById('lightboxImage');
+        const closeBtn = document.getElementById('lightboxClose');
+
+// 打开灯箱
+        function openLightbox(src) {
+            lightboxImg.src = src;
+            overlay.classList.add('active');   // 显示
+            document.body.style.overflow = 'hidden'; // 禁止页面滚动
+        }
+
+// 关闭灯箱
+        function closeLightbox() {
+            overlay.classList.remove('active');
+            document.body.style.overflow = 'auto'; // 恢复滚动
+        }
+
+// 点击背景（overlay自身）关闭
+        overlay.addEventListener('click', function(e) {
+    // 如果点击的是背景本身（不是图片或关闭按钮），则关闭
+            if (e.target === overlay) {
+            closeLightbox();
+            }
+        });
+
+// 点击关闭按钮关闭
+        closeBtn.addEventListener('click', function(e) {
+        e.stopPropagation(); // 阻止事件冒泡到 overlay
+        closeLightbox();
+        });
+
+// 按 ESC 键关闭
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+            closeLightbox();
+            }
+        });
+    </script>
+</body>
+</html>

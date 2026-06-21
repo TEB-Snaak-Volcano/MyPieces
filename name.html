@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>来者何人</title>
+    <link rel="stylesheet" href="style.css"> 
+</head>
+<body>
+    <main>
+        <div class="card">
+            <h2 class="title">?你是谁?</h2>
+            <p style="font-size: 20px; color: #555; margin-bottom: 30px;">请如实回答</p>
+            <div class="button_namegroup" >
+                <button class="button_name" data-target="login.html?user=zyx">zyx</button>
+                <button class="button_name" data-target="login.html?user=wyx">wyx</button>
+                <button class="button_name" data-target="login.html?user=dyt">dyt</button>
+                <button class="button_name" data-target="login.html?user=xy">xy</button>
+                <button class="button_name" data-target="login.html?user=zyr">zyr</button>
+                <button class="button_name" data-target="login.html?user=zyn">zyn</button>
+                <button class="button_name" data-target="login.html?user=csx">csx</button>
+                <button class="button_name" data-target="login.html?user=lyw">lyw</button>
+                <button class="button_name" data-target="login.html?user=ldj">ldj</button>
+                <button class="button_name" data-target="login.html?user=hcr">hcr</button>
+                <button class="button_name" data-target="login.html?user=visitor">我的名字不在其中，难道说……我只是一个凡人？</button>
+            </div>    
+            </button>
+            
+        </div>
+    </main>
+    <footer>
+        <p>©TEB_Snaak_Volcano</p>
+    </footer>
+    <script>
+        document.querySelectorAll('.button_name').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const target = this.dataset.target;
+                if (target) {
+                    window.location.href = target;
+                }
+            });
+        });
+</script>
+</body>
+</html>
